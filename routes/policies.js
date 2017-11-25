@@ -16,7 +16,9 @@ router.post('/search', function(req, res) {
   if (typeof req.body !== 'undefined')
   {
     var search_query = req.body;
-    collection.find(search_query,{},function(err, result){
+
+    // TODO: for local testing limit to 20 results...remove later
+    collection.find(search_query,{ "limit": 20 },function(err, result){
       if (err) throw err;
       res.json(result);
       // console.log(result);
