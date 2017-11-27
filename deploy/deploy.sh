@@ -8,5 +8,5 @@ docker run --rm \
     -e AWS_DEFAULT_REGION \
     realestate/stackup:1.2.0 care-to-compare-assets up \
     -t /cwd/deploy/sis-store.yml \
-    -o DomainName=caretocompare.com \
-    -o FullDomainName=assets.caretocompare.com
+    -o DomainName=caretocompare.com.au \
+    -o FullDomainName=assets.caretocompare.com.au
