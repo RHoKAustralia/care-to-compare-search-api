@@ -48,3 +48,13 @@ Load the data into the MongoDB database
 ```
 docker exec -it policy-search bash -c "mongoimport --db policy-search-db --collection policies --type json --file /input-data/policies-updated.json --jsonArray"
 ```
+
+Update data types:
+```
+// Set monthlyPremium to double type
+var cursor = db.policies.find(); 
+while (cursor.hasNext()) { 
+  var doc = cursor.next(); 
+  db.policies.update({_id : doc._id}, {$set : {monthlyPremium : NumberDecimal(doc.monthlyPremium) }});
+}
+```
