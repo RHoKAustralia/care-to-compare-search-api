@@ -69,6 +69,7 @@ For example:
 ```
 > This query returns policies (only requested attributes) for policies that are `Combined`, covers `Families` and in `ACT`.
 
+Example using fragments:
 ```
 {
   search(typeOfCover: COMBINED, categoryOfCover: FAMILIES, location: VIC, maxMonthlyPremium: 400) {
