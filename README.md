@@ -51,7 +51,7 @@ yarn start
 The Search API has been implemented using `GraphQL`. After start up visit http://localhost:8080/graphql, and look at what is available.
 
 For example:
-```json
+```
 {
   search(
     typeOfCover: COMBINED,
