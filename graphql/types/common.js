@@ -1,6 +1,14 @@
 const {
-	GraphQLEnumType
+	GraphQLEnumType,
 } = require('graphql')
+
+const FundTypes = new GraphQLEnumType({
+	name: 'FUND_TYPES',
+	values: {
+		RESTRICTED: {},
+		OPEN: {}
+	}
+})
 
 const TypesOfCover = new GraphQLEnumType({
 	name: 'TYPES_OF_COVER',
@@ -39,5 +47,6 @@ const AustralianStates = new GraphQLEnumType({
 module.exports = {
 	TypesOfCover,
 	CategoriesOfCover,
-	AustralianStates
+	AustralianStates,
+	FundTypes
 }

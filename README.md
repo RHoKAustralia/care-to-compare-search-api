@@ -68,3 +68,35 @@ For example:
 }
 ```
 > This query returns policies (only requested attributes) for policies that are `Combined`, covers `Families` and in `ACT`.
+
+```
+{
+  search(typeOfCover: COMBINED, categoryOfCover: FAMILIES, location: VIC, maxMonthlyPremium: 400) {
+    id
+    fundName
+    fundType
+    policyName
+    monthlyPremium
+    typeOfCover
+    categoryOfCover
+    states
+    hospitalInclusions {
+      accomodation
+    }
+    generalInclusions {
+      optical {
+        ...generalInclusionFragment
+      }
+      nonPbs {
+        ...generalInclusionFragment
+      }
+    }
+  }
+}
+
+fragment generalInclusionFragment on GeneralInclusion {
+  limits
+  benefits
+}
+
+```

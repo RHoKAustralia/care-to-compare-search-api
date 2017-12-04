@@ -10,10 +10,23 @@ const {
 const {
 	TypesOfCover,
 	CategoriesOfCover,
-	AustralianStates
+	AustralianStates,
+	FundTypes
 } = require('./common')
 
-const policyType = new GraphQLObjectType({
+const GeneralInclusion = new GraphQLObjectType({
+	name: 'GeneralInclusion',
+	fields: {
+		benefits: {
+			type: new GraphQLNonNull(GraphQLString)
+		},
+		limits: {
+			type: new GraphQLNonNull(GraphQLString)
+		}
+	}
+})
+
+const Policy = new GraphQLObjectType({
 	name: 'Policy',
 	fields: {
 		id: {
@@ -27,6 +40,9 @@ const policyType = new GraphQLObjectType({
 		},
 		fundName: {
 			type: new GraphQLNonNull(GraphQLString)
+		},
+		fundType: {
+			type: new GraphQLNonNull(FundTypes)
 		},
 		policyName: {
 			type: new GraphQLNonNull(GraphQLString)
@@ -51,8 +67,31 @@ const policyType = new GraphQLObjectType({
 			resolve(obj, args, context) {
 				return obj.type
 			}
+		},
+		hospitalInclusions: {
+			type: new GraphQLObjectType({
+				name: 'HospitalInclusions',
+				fields: {
+					accomodation: {
+						type: new GraphQLNonNull(GraphQLString)
+					}
+				}
+			})
+		},
+		generalInclusions: {
+			type: new GraphQLObjectType({
+				name: 'GeneralInclusions',
+				fields: {
+					optical: {
+						type: new GraphQLNonNull(GeneralInclusion)
+					},
+					nonPbs: {
+						type: new GraphQLNonNull(GeneralInclusion)
+					},
+				}
+			})
 		}
 	}
 })
 
-module.exports = policyType
+module.exports = Policy

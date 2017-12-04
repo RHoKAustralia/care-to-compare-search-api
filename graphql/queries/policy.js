@@ -14,8 +14,7 @@ const {
 		CategoriesOfCover,
 		AustralianStates
 	}
-} = require('../../types')
-//const getProjection = require('../../get-projection')
+} = require('../types')
 
 const search = {
 	type: new GraphQLList(Policy),
