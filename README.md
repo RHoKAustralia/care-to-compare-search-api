@@ -52,24 +52,32 @@ The Search API has been implemented using `GraphQL`. After start up visit http:/
 
 For example:
 ```
-{
-  search(
-    typeOfCover: COMBINED,
-    categoryOfCover: FAMILIES
-    location: ACT
+query {
+  HospialPolicies(
+    categoryOfCover: FAMILIES,
+    state: WA,
+    maxMonthlyPremium: 400,
+    hospitalInclusions: [
+      CARDIAC_AND_RELATED_SERVICE,
+      CATARACT_AND_EYE_LENSE_PROCEDURES
+    ]
   ) {
-    id,
+    id, 
+    fundName,
+    fundCode,
+    fundType,
+    sisCode,
     policyName,
     monthlyPremium,
-    typeOfCover,
-    categoryOfCover,
     states
+    
   }
 }
 ```
-> This query returns policies (only requested attributes) for policies that are `Combined`, covers `Families` and in `ACT`.
+> This query returns hosptial policies (only requested attributes) for policies that covers `Families` and in `WA` and with maximum monthly premium of $400.
 
-Example using fragments:
+
+Example using fragments (out of date with current implementation, left only as reference):
 ```
 {
   search(typeOfCover: COMBINED, categoryOfCover: FAMILIES, location: VIC, maxMonthlyPremium: 400) {
