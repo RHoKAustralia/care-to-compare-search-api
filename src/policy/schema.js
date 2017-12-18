@@ -32,12 +32,19 @@ enum AmbulanceCover {
 }
 
 enum HospitalInclusions {
-    CARDIAC_AND_RELATED_SERVICE
-    CATARACT_AND_EYE_LENSE_PROCEDURES
-    PREGNANCY_AND_BIRTH_SERVICES
-    ASSISTED_REPRODUCTIVE_SERVICES
+    HEART_SUGERY
+    EYE_SURGERY
+    PREGNANCY
+    IVF
     JOINT_REPLACEMENTS
-    DIALISIS_CHRONIC_RENAL_FAILURE
+    DIALYSIS
+    SURGICAL_WEIGHT_LOSS_PROCEDURES
+    STERILISATION
+    NON_COSMETIC_PLASTIC_SURGERY
+    IN_HOSPITAL_REHABILITATION
+    IN_HOSPITAL_PSYCHIATRY
+    PALLIATIVE_CARE
+    OTHER_NON_MEDICARE
 }
 
 interface Policy {
@@ -64,12 +71,16 @@ type HospitalPolicy implements Policy {
     monthlyPremium: Float!
 }
 
+input BaseSearchCriteria {
+    categoryOfCover: CategoryOfCover!, 
+    state: AustralianStates!, 
+    maxMonthlyPremium: Float,
+}
+
 type Query {
     HospialPolicies(
-        categoryOfCover: CategoryOfCover!, 
-        state: AustralianStates!, 
+        basicPolicyCriteria: BaseSearchCriteria!
         hospitalInclusions: [HospitalInclusions]
-        maxMonthlyPremium: Float
     ): [HospitalPolicy]
 }
 `

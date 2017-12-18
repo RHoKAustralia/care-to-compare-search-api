@@ -1,8 +1,10 @@
 const Query = {
     HospialPolicies: (obj, {
-        categoryOfCover,
-        state,
-        maxMonthlyPremium,
+        basicPolicyCriteria: {
+            categoryOfCover,
+            state,
+            maxMonthlyPremium
+        },
         hospitalInclusions
     }, context) => {
 
