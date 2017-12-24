@@ -47,6 +47,24 @@ enum HospitalInclusions {
     OTHER_NON_MEDICARE
 }
 
+enum ExtrasInclusions {
+    DENTAL_GENERAL
+    DENTAL_MAJOR
+    DENTAL_ENDODONTIC
+    DENTAL_ORTHODONTIC
+    OPTICAL
+    NON_PBS_PHARMACEUTICALS
+    PHYSIOTHERAPY
+    CHIROPRACTIC
+    PODIATRY
+    CLINICAL_PSYCHOLOGY
+    ACUPUNCTURE
+    NATUROPATHY
+    MASSAGE
+    HEARING_AIDS
+    BLOOD_GLUCOSE_MONITOR
+}
+
 interface Policy {
     id: ID!
     fundCode: String!
@@ -69,6 +87,44 @@ type HospitalPolicy implements Policy {
     states: [AustralianStates]!
     categoryOfCover: CategoryOfCover!
     monthlyPremium: Float!
+    hospitalInclusions: [HospitalInclusionDetails]!
+}
+
+type ExtrasPolicy implements Policy {
+    id: ID!
+    fundCode: String!
+    fundName: String!
+    fundType: FundType!
+    policyName: String!
+    sisCode: String!
+    states: [AustralianStates]!
+    categoryOfCover: CategoryOfCover!
+    monthlyPremium: Float!
+    extrasInclusions: [ExtrasInclusionDetails]!
+}
+
+type CombinedPolicy implements Policy {
+    id: ID!
+    fundCode: String!
+    fundName: String!
+    fundType: FundType!
+    policyName: String!
+    sisCode: String!
+    states: [AustralianStates]!
+    categoryOfCover: CategoryOfCover!
+    monthlyPremium: Float!
+    hospitalInclusions: [HospitalInclusionDetails]!
+    extrasInclusions: [ExtrasInclusionDetails]!
+}
+
+type HospitalInclusionDetails {
+    category: HospitalInclusions!
+    isCovered: Boolean!
+}
+
+type ExtrasInclusionDetails {
+    category: ExtrasInclusions!
+    isCovered: Boolean!
 }
 
 input BaseSearchCriteria {
@@ -80,8 +136,19 @@ input BaseSearchCriteria {
 type Query {
     HospialPolicies(
         basicPolicyCriteria: BaseSearchCriteria!
-        hospitalInclusions: [HospitalInclusions]
+        hospitalInclusions: [HospitalInclusions]!
     ): [HospitalPolicy]
+
+    ExtrasPolicies(
+        basicPolicyCriteria: BaseSearchCriteria!
+        extrasInclusions: [ExtrasInclusions]!
+    ): [ExtrasPolicy]
+
+CombinedPolicies(
+        basicPolicyCriteria: BaseSearchCriteria!
+        hospitalInclusions: [HospitalInclusions]!
+        extrasInclusions: [ExtrasInclusions]!
+    ): [CombinedPolicy]
 }
 `
 
