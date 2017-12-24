@@ -1,8 +1,6 @@
 const lodash = require('lodash')
 const lodashFp = require('lodash/fp')
 
-const { baseQuery } = require('../db/queries')
-
 const OPEN_FUND_TYPE = 'OPEN'
 
 const POLICY_TYPE_HOSPITAL = 'HOSPITAL'
