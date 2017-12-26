@@ -1,15 +1,11 @@
 const PolicyResolvers = require('./policy/resolvers')
 
 const PolicyQuery = PolicyResolvers.Query
-const HospitalPolicy = PolicyResolvers.HospitalPolicy 
-const ExtrasPolicy = PolicyResolvers.ExtrasPolicy
-const CombinedPolicy = PolicyResolvers.CombinedPolicy
+const Policy = PolicyResolvers.Policy
 
 module.exports = {
     Query: {
-       ...PolicyQuery
+        ...PolicyQuery
     },
-    HospitalPolicy,
-    ExtrasPolicy,
-    CombinedPolicy
+    Policy
 }

@@ -29,7 +29,9 @@ docker run \
     mongo
 ```
 
-> Note: the second volume mount points where you have checked out the `care-to-compare-search-api` repo.
+> Note: The second volume mount points where you have checked out the `care-to-compare-search-api` repo.
+
+> Note: If you have already imported data in you need to drop the Mongo policies collection i.e. db.policies.drop()
 
 Import the policy data:
 ```bash

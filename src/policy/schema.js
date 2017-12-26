@@ -1,5 +1,11 @@
 const Policy = `
 
+enum PolicyType {
+    HOSPITAL
+    EXTRAS
+    COMBINED
+}
+
 enum AustralianStates {
     ACT
     NSW
@@ -25,10 +31,9 @@ enum FundType {
 }
 
 enum AmbulanceCover {
-    YES
-    NO
-    STATE
+    COMPREHENSIVE
     PARTIAL
+    NOT_COVERED
 }
 
 enum HospitalInclusions {
@@ -65,90 +70,66 @@ enum ExtrasInclusions {
     BLOOD_GLUCOSE_MONITOR
 }
 
-interface Policy {
-    id: ID!
-    fundCode: String!
-    fundName: String!
-    fundType: FundType!
-    policyName: String!
-    sisCode: String!
-    states: [AustralianStates]!
-    categoryOfCover: CategoryOfCover!
-    monthlyPremium: Float!
+enum CoPayments {
+    L,
+    N,
+    U
 }
 
-type HospitalPolicy implements Policy {
-    id: ID!
-    fundCode: String!
-    fundName: String!
-    fundType: FundType!
-    policyName: String!
-    sisCode: String!
-    states: [AustralianStates]!
-    categoryOfCover: CategoryOfCover!
-    monthlyPremium: Float!
-    hospitalInclusions: [HospitalInclusionDetails]!
+type Excess {
+    perHospitalVisit: String!
+    maxPerPerson: String!
+    maxPerAnnum: String!
 }
 
-type ExtrasPolicy implements Policy {
+type Policy {
     id: ID!
     fundCode: String!
     fundName: String!
     fundType: FundType!
     policyName: String!
+    policyType: PolicyType!
     sisCode: String!
     states: [AustralianStates]!
     categoryOfCover: CategoryOfCover!
     monthlyPremium: Float!
-    extrasInclusions: [ExtrasInclusionDetails]!
+    ambulanceCover: AmbulanceCover!
+    hospitalComponent: HospitalComponent
+    extrasComponent: ExtrasComponent
 }
 
-type CombinedPolicy implements Policy {
-    id: ID!
-    fundCode: String!
-    fundName: String!
-    fundType: FundType!
-    policyName: String!
-    sisCode: String!
-    states: [AustralianStates]!
-    categoryOfCover: CategoryOfCover!
-    monthlyPremium: Float!
-    hospitalInclusions: [HospitalInclusionDetails]!
-    extrasInclusions: [ExtrasInclusionDetails]!
+type HospitalComponent {
+    coPayments: CoPayments!
+    excess: Excess!
+    inclusions: [HospitalInclusionDetails]!
+}
+
+type ExtrasComponent {
+    preferredProvider: Boolean!
+    inclusions: [ExtrasInclusionDetails]!
 }
 
 type HospitalInclusionDetails {
     category: HospitalInclusions!
-    isCovered: Boolean!
+    covered: Boolean!
 }
 
 type ExtrasInclusionDetails {
     category: ExtrasInclusions!
-    isCovered: Boolean!
-}
-
-input BaseSearchCriteria {
-    categoryOfCover: CategoryOfCover!, 
-    state: AustralianStates!, 
-    maxMonthlyPremium: Float,
+    covered: Boolean!
 }
 
 type Query {
-    HospialPolicies(
-        basicPolicyCriteria: BaseSearchCriteria!
-        hospitalInclusions: [HospitalInclusions]!
-    ): [HospitalPolicy]
 
-    ExtrasPolicies(
-        basicPolicyCriteria: BaseSearchCriteria!
-        extrasInclusions: [ExtrasInclusions]!
-    ): [ExtrasPolicy]
+    Policies(
+        policyType: PolicyType!,
+        categoryOfCover: CategoryOfCover!, 
+        state: AustralianStates!, 
+        maxMonthlyPremium: Float,
+        hospitalInclusions: [HospitalInclusions]
+        extrasInclusions: [ExtrasInclusions]
+    ): [Policy]
 
-CombinedPolicies(
-        basicPolicyCriteria: BaseSearchCriteria!
-        hospitalInclusions: [HospitalInclusions]!
-        extrasInclusions: [ExtrasInclusions]!
-    ): [CombinedPolicy]
 }
 `
 
