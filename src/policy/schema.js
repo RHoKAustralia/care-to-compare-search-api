@@ -119,16 +119,29 @@ type ExtrasInclusionDetails {
     covered: Boolean!
 }
 
+type SearchMeta {
+    page: Int!
+    pageSize: Int!
+    total: Int!
+}
+
+type PolicySearchResults {
+    policies: [Policy]!
+    meta: SearchMeta!
+}
+
 type Query {
 
     Policies(
-        policyType: PolicyType!,
-        categoryOfCover: CategoryOfCover!, 
-        state: AustralianStates!, 
-        maxMonthlyPremium: Float,
+        policyType: PolicyType!
+        categoryOfCover: CategoryOfCover!
+        state: AustralianStates!
+        maxMonthlyPremium: Float
         hospitalInclusions: [HospitalInclusions]
         extrasInclusions: [ExtrasInclusions]
-    ): [Policy]
+        page: Int
+        pageSize: Int
+    ): PolicySearchResults
 
 }
 `
