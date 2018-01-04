@@ -50,64 +50,48 @@ yarn start
 > Note: this starts up using `nodemon`, so any changes will automatically restart the `express` server.
 
 ## Search API
-The Search API has been implemented using `GraphQL`. After start up visit http://localhost:8080/graphql, and look at what is available.
+The Search API has been implemented using `GraphQL`. After start up visit http://localhost:4000/graphql, and look at what is available.
 
 For example:
 ```
-query {
-  HospialPolicies(
-    categoryOfCover: FAMILIES,
-    state: WA,
-    maxMonthlyPremium: 400,
+query{
+  Policies(
+    policyType: HOSPITAL
+    categoryOfCover: SINGLES
+    state: VIC
     hospitalInclusions: [
-      CARDIAC_AND_RELATED_SERVICE,
-      CATARACT_AND_EYE_LENSE_PROCEDURES
+      HEART_SUGERY
+      JOINT_REPLACEMENTS
     ]
+    maxMonthlyPremium: 150
+    page: 0
+    pageSize: 3
   ) {
-    id, 
-    fundName,
-    fundCode,
-    fundType,
-    sisCode,
-    policyName,
-    monthlyPremium,
-    states
-    
-  }
-}
-```
-> This query returns hosptial policies (only requested attributes) for policies that covers `Families` and in `WA` and with maximum monthly premium of $400.
-
-
-Example using fragments (out of date with current implementation, left only as reference):
-```
-{
-  search(typeOfCover: COMBINED, categoryOfCover: FAMILIES, location: VIC, maxMonthlyPremium: 400) {
-    id
-    fundName
-    fundType
-    policyName
-    monthlyPremium
-    typeOfCover
-    categoryOfCover
-    states
-    hospitalInclusions {
-      accomodation
+    policies {
+      id
+      fundName
+      policyName
+      policyType
+      monthlyPremium
+      hospitalComponent {
+        coPayments
+        excess {
+          perHospitalVisit
+          maxPerPerson
+          maxPerAnnum
+        }
+        inclusions {
+          category
+          covered
+        }
+      }
     }
-    generalInclusions {
-      optical {
-        ...generalInclusionFragment
-      }
-      nonPbs {
-        ...generalInclusionFragment
-      }
+    meta {
+      page
+      pageSize
+      total
     }
   }
 }
-
-fragment generalInclusionFragment on GeneralInclusion {
-  limits
-  benefits
-}
-
 ```
+> This query returns hosptial policies (only requested attributes) for policies that covers `Singles` and in `VIC` and with maximum monthly premium of $150. Also page 0 is requested with page size of 3.
