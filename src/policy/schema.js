@@ -122,7 +122,8 @@ type ExtrasInclusionDetails {
 type SearchMeta {
     page: Int!
     pageSize: Int!
-    total: Int!
+    totalPages: Int!
+    totalRecords: Int!
 }
 
 type PolicySearchResults {
@@ -132,7 +133,7 @@ type PolicySearchResults {
 
 type Query {
 
-    Policies(
+    search(
         policyType: PolicyType!
         categoryOfCover: CategoryOfCover!
         state: AustralianStates!
