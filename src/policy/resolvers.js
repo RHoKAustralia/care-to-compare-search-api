@@ -62,7 +62,7 @@ const Query = {
             return {
                 policies: results,
                 meta: {
-                    page,
+                    page: totalRecords === 0 ? 0 :page,
                     pageSize,
                     totalPages,
                     totalRecords
