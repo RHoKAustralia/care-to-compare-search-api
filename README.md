@@ -2,59 +2,96 @@
 
 ## Installation
 
-```
-npm install
+You will need `yarn` installed.
+
+Then run the following to install all project dependancies:
+```bash
+yarn install
 ```
 
 ## Running the application
 
+You will need `docker`.
+
+Install `mongo` docker image:
+```bash
+docker pull mongo
 ```
+
+Start container (from repo directory):
+```bash
 docker run \
     --publish=27017:27017 \
     --volume $HOME/mongodb/data:/data/db \
-    --volume=$HOME/caretocompare/data:/input-data \
-    --name policy-search \
-    -d \
-    mongo
-
-npm start
-```
-
-## Search
-
-POST to the /policies/search endpoint with the correct payload:
-
-```
-curl  -H "Content-Type: application/json" -X POST -d '{"fundType":"Open","category":"Two adults"}' localhost:3000/policies/search
-```
-
-
-## Loading the data into Mongo DB
-
-Run the MongoDB database if not already running:
-
-```
-docker run \
-    --publish=27017:27017 \
-    --volume $HOME/mongodb/data:/data/db \
-    --volume=$HOME/caretocompare/data:/input-data \
+    --volume=$(pwd)/seed-data:/input-data \
     --name policy-search \
     -d \
     mongo
 ```
 
-Load the data into the MongoDB database
+> Note: The second volume mount points where you have checked out the `care-to-compare-search-api` repo.
 
-```
-docker exec -it policy-search bash -c "mongoimport --db policy-search-db --collection policies --type json --file /input-data/policies-updated.json --jsonArray"
+> Note: If you have already imported data in you need to drop the Mongo policies collection i.e. db.policies.drop()
+
+Import the policy data:
+```bash
+docker exec -it policy-search bash -c "mongoimport --db policy-search-db --collection policies --type json --file /input-data/policies.json --jsonArray"
 ```
 
-Update data types:
+Update `policy` database schema:
+```bash
+docker exec -it policy-search bash -c "mongo policy-search-db /input-data/update-schema.js"
 ```
-// Set monthlyPremium to double type
-var cursor = db.policies.find(); 
-while (cursor.hasNext()) { 
-  var doc = cursor.next(); 
-  db.policies.update({_id : doc._id}, {$set : {monthlyPremium : NumberDecimal(doc.monthlyPremium) }});
+
+Start the search API server:
+```bash
+yarn start
+```
+> Note: this starts up using `nodemon`, so any changes will automatically restart the `express` server.
+
+## Search API
+The Search API has been implemented using `GraphQL`. After start up visit http://localhost:4000/graphql, and look at what is available.
+
+For example:
+```
+query{
+  Policies(
+    policyType: HOSPITAL
+    categoryOfCover: SINGLES
+    state: VIC
+    hospitalInclusions: [
+      HEART_SUGERY
+      JOINT_REPLACEMENTS
+    ]
+    maxMonthlyPremium: 150
+    page: 0
+    pageSize: 3
+  ) {
+    policies {
+      id
+      fundName
+      policyName
+      policyType
+      monthlyPremium
+      hospitalComponent {
+        coPayments
+        excess {
+          perHospitalVisit
+          maxPerPerson
+          maxPerAnnum
+        }
+        inclusions {
+          category
+          covered
+        }
+      }
+    }
+    meta {
+      page
+      pageSize
+      total
+    }
+  }
 }
 ```
+> This query returns hosptial policies (only requested attributes) for policies that covers `Singles` and in `VIC` and with maximum monthly premium of $150. Also page 0 is requested with page size of 3.
