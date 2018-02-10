@@ -1,0 +1,36 @@
+#!/bin/bash
+
+function cleanup() {
+  rm -f _params.yml _outputs.yml _res.yml
+}
+
+
+cat subnet.main.yml > subnet.yaml
+
+for SUBNET in Public Private; do
+  sed "s|__SUBNET__|$SUBNET|g" subnet.params.template.yml > _params.yml
+  sed -i "/^Parameters:/r _params.yml" subnet.yaml
+done
+
+for SUBNET in Private; do
+  sed "s|__SUBNET__|$SUBNET|g" subnet.outputs.template.yml > _outputs.yml
+  sed -i "/^Outputs:/r _outputs.yml" subnet.yaml
+done
+
+for SUBNET in Private; do
+  sed "s|__SUBNET__|$SUBNET|g" subnet.res.template.yml > _res.yml
+  sed -i "/^Resources:/r _res.yml" subnet.yaml
+done
+
+cleanup
+
+# cat subnet-nacls.yml > nacls.yaml
+
+# for SUBNET in Public Private; do
+#   sed "s|__SUBNET__|$SUBNET|g" subnet-nacls.params.template.yml > _params.yml
+#   cat _params.yml
+#   sed -i "/^Parameters:/r _params.yml" nacls.yaml
+# done
+
+# cleanup
+

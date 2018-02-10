@@ -1,0 +1,8 @@
+- ParameterKey: PublicSubnetACIDR
+  ParameterValue: 192.168.0.0/26
+- ParameterKey: PublicSubnetBCIDR
+  ParameterValue: 192.168.0.64/26
+- ParameterKey: PrivateSubnetACIDR
+  ParameterValue: 192.168.0.128/26
+- ParameterKey: PrivateSubnetBCIDR
+  ParameterValue: 192.168.0.192/26

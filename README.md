@@ -23,7 +23,7 @@ Start container (from repo directory):
 docker run \
     --publish=27017:27017 \
     --volume $HOME/mongodb/data:/data/db \
-    --volume=$(pwd)/seed-data:/input-data \
+    --volume=$(pwd)/data/seed-data:/input-data \
     --name policy-search \
     -d \
     mongo

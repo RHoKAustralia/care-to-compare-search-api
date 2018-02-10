@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Conditions:
+  HasCloudFrontSSLCertificateArn:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: CloudFrontSSLCertificateArn
+      - ''
+  HasELBSSLCertificateArn:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: ELBSSLCertificateArn
+      - ''
+  HasHostedZoneName:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: HostedZoneName
+      - ''
+Description: Infrastructure Automation for ACM Certs
+Outputs:
+  Route53DNSHostedZoneId:
+    Condition: HasHostedZoneName
+    Description: HostedZone ID for Route53 HostedZone Record
+    Value:
+      Ref: Route53DNSHostedZone
+  Route53DNSHostedZoneName:
+    Condition: HasHostedZoneName
+    Description: HostedZone Name for Route53 HostedZone Record
+    Value:
+      Fn::Join:
+      - ''
+      - - Ref: HostedZoneName
+        - .
+  WildcardCloudFrontSSLCertificateArn:
+    Condition: HasCloudFrontSSLCertificateArn
+    Description: Arn for the ACM SSL Certificate
+    Value:
+      Ref: CloudFrontSSLCertificateArn
+  WildcardELBSSLCertificateArn:
+    Condition: HasELBSSLCertificateArn
+    Description: Arn for the ACM SSL Certificate
+    Value:
+      Ref: ELBSSLCertificateArn
+  WildcardHostedZoneName:
+    Condition: HasHostedZoneName
+    Description: Wildcard HostedZone Record for Certificates
+    Value:
+      Fn::Join:
+      - .
+      - - '*'
+        - Ref: HostedZoneName
+Parameters:
+  CloudFrontSSLCertificateArn:
+    Default: ''
+    Type: String
+  ELBSSLCertificateArn:
+    Default: ''
+    Type: String
+  Environment:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  HostedZoneName:
+    Default: ''
+    Type: String
+  Name:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  QualifiedName:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+Resources:
+  Route53DNSHostedZone:
+    Condition: HasHostedZoneName
+    Properties:
+      HostedZoneConfig:
+        Comment:
+          Fn::Join:
+          - ''
+          - - 'HostedZone DNS Records for - '
+            - Ref: Environment
+      HostedZoneTags:
+      - Key: Environment
+        Value:
+          Ref: Environment
+      Name:
+        Ref: HostedZoneName
+    Type: AWS::Route53::HostedZone

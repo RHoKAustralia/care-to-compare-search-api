@@ -1,0 +1,7 @@
+Statement:
+- Action: logs:PutSubscriptionFilter
+  Effect: Allow
+  Principal:
+    AWS: SourceAccountID
+  Resource: arn:aws:logs:TargetAccountRegion:TargetAccountID:destination:VPCFlowLogsDestination
+Version: '2012-10-17'

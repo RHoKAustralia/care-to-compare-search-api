@@ -1,0 +1,6 @@
+FROM mongo:latest
+
+MAINTAINER Care2Compare 
+
+WORKDIR /data
+ADD data .

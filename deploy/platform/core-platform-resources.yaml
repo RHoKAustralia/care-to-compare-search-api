@@ -1,0 +1,193 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Conditions:
+  HasEmailNotificationEndpoint:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: EmailNotificationEndpoint
+      - ''
+  HasPagerDutyCriticalNotificationEndpoint:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: PagerDutyCriticalNotificationEndpoint
+      - ''
+  HasPagerDutyWarningNotificationEndpoint:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: PagerDutyWarningNotificationEndpoint
+      - ''
+Description: Infrastructure Automation for Shared Resources
+Mappings:
+  Region2ELBAccountId:
+    ap-northeast-1:
+      AccountId: '582318560864'
+    ap-northeast-2:
+      AccountId: '600734575887'
+    ap-south-1:
+      AccountId: '718504428378'
+    ap-southeast-1:
+      AccountId: '114774131450'
+    ap-southeast-2:
+      AccountId: '783225319266'
+    cn-north-1:
+      AccountId: '638102146993'
+    eu-central-1:
+      AccountId: 054676820928
+    eu-west-1:
+      AccountId: '156460612806'
+    sa-east-1:
+      AccountId: '507241528517'
+    us-east-1:
+      AccountId: '127311923021'
+    us-west-1:
+      AccountId: 027434742980
+    us-west-2:
+      AccountId: '797873946194'
+Outputs:
+  AccessLoggingBucketName:
+    Description: ELB Access Logging Bucket Name for the environment and account
+    Value:
+      Ref: AccessLoggingBucket
+  EmailNotificationTopicArn:
+    Condition: HasEmailNotificationEndpoint
+    Description: ARN of Email Notification Topic
+    Value:
+      Ref: EmailNotificationTopic
+  PagerDutyCriticalNotificationArn:
+    Condition: HasPagerDutyCriticalNotificationEndpoint
+    Description: ARN of PagerDuty Critical Notification Topic
+    Value:
+      Ref: PagerDutyCriticalNotification
+  PagerDutyWarningNotificationArn:
+    Condition: HasPagerDutyWarningNotificationEndpoint
+    Description: ARN of PagerDuty Warning Notification Topic
+    Value:
+      Ref: PagerDutyWarningNotification
+Parameters:
+  AccessLoggingBucketName:
+    ConstraintDescription: must not be empty
+    Description: Name of the bucket to store ELB and CloudFront access logs
+    Type: String
+  AccountName:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  EmailNotificationEndpoint:
+    Default: ''
+    Type: String
+  Environment:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  Name:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  PagerDutyCriticalNotificationEndpoint:
+    Default: ''
+    Type: String
+  PagerDutyWarningNotificationEndpoint:
+    Default: ''
+    Type: String
+  QualifiedName:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+Resources:
+  AccessLoggingBucket:
+    DeletionPolicy: Retain
+    Properties:
+      AccessControl: Private
+      BucketName:
+        Ref: AccessLoggingBucketName
+      LifecycleConfiguration:
+        Rules:
+        - ExpirationInDays: 365
+          Id: log-lifecycle-rule
+          Prefix: ''
+          Status: Enabled
+          Transitions:
+          - StorageClass: GLACIER
+            TransitionInDays: 90
+      Tags:
+      - Key: Environment
+        Value:
+          Ref: Environment
+    Type: AWS::S3::Bucket
+  AccessLoggingBucketPolicy:
+    Properties:
+      Bucket:
+        Ref: AccessLoggingBucket
+      PolicyDocument:
+        Statement:
+        - Action:
+          - s3:PutObject
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::FindInMap:
+              - Region2ELBAccountId
+              - Ref: AWS::Region
+              - AccountId
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: AccessLoggingBucket
+              - /*
+          Sid: ELBAccessLogs20130930
+        Version: '2008-10-17'
+    Type: AWS::S3::BucketPolicy
+  EmailNotificationTopic:
+    Condition: HasEmailNotificationEndpoint
+    Properties:
+      DisplayName:
+        Fn::Join:
+        - '-'
+        - - Ref: AccountName
+          - Support
+          - Ref: Environment
+      Subscription:
+      - Endpoint:
+          Ref: EmailNotificationEndpoint
+        Protocol: email
+      TopicName:
+        Fn::Join:
+        - '-'
+        - - Ref: AccountName
+          - Support
+          - Ref: Environment
+    Type: AWS::SNS::Topic
+  PagerDutyCriticalNotification:
+    Condition: HasPagerDutyCriticalNotificationEndpoint
+    Properties:
+      DisplayName:
+        Fn::Join:
+        - '-'
+        - - PagerDuty-CRITICAL
+          - Ref: Environment
+      Subscription:
+      - Endpoint:
+          Ref: PagerDutyCriticalNotificationEndpoint
+        Protocol: https
+      TopicName:
+        Fn::Join:
+        - '-'
+        - - PagerDuty-CRITICAL
+          - Ref: Environment
+    Type: AWS::SNS::Topic
+  PagerDutyWarningNotification:
+    Condition: HasPagerDutyWarningNotificationEndpoint
+    Properties:
+      DisplayName:
+        Fn::Join:
+        - '-'
+        - - PagerDuty-WARNING
+          - Ref: Environment
+      Subscription:
+      - Endpoint:
+          Ref: PagerDutyWarningNotificationEndpoint
+        Protocol: https
+      TopicName:
+        Fn::Join:
+        - '-'
+        - - PagerDuty-WARNING
+          - Ref: Environment
+    Type: AWS::SNS::Topic

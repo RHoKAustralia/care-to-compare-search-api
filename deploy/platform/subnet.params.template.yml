@@ -1,0 +1,18 @@
+  __SUBNET__SubnetACIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+    Description: The IP address range for a subnet of the VPC
+    MaxLength: '18'
+    MinLength: '9'
+    Type: String
+  __SUBNET__SubnetBCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+    Description: The IP address range for a subnet of the VPC
+    MaxLength: '18'
+    MinLength: '9'
+    Type: String
+  __SUBNET__SubnetCCIDR:
+    Default: ''
+    Description: The IP address range for a subnet of the VPC (optional)
+    Type: String

@@ -14,7 +14,8 @@ VERSION=1.0.${BUILD_NUMBER:-0}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 TEMPLATES=(
-  "app.yml"
+  "vpc.yaml"
+  "subnet.yaml"
 )
 
 for TEMPLATE in "${TEMPLATES[@]}"
@@ -27,12 +28,9 @@ done
 
 cd ${DIR}
 
-TEMPLATE="app.yml"
+TEMPLATE="vpc.yaml"
 TYPE="${TEMPLATE%.*}"
 STACK_NAME="caretocompare-${ENVIRONMENT}-${TYPE}"
-VPC_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-vpc --output text --query 'Stacks[0].Outputs[?OutputKey==`VPCId`].OutputValue')
-SUBNET_A_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-subnet --output text --query 'Stacks[0].Outputs[?OutputKey==`PublicSubnetAId`].OutputValue')
-SUBNET_B_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-subnet --output text --query 'Stacks[0].Outputs[?OutputKey==`PublicSubnetBId`].OutputValue')
 
 echo ""
 echo "INFO: [`date +"%T"`] Deploying to ${STACK_NAME} for environment ${ENVIRONMENT}"
@@ -43,6 +41,33 @@ docker run --rm \
     -e AWS_SESSION_TOKEN \
     -e AWS_DEFAULT_REGION \
     realestate/stackup:1.1.1 "${STACK_NAME}" up -t ${TEMPLATE} \
-    -p parameters.${TYPE}.yml \
-    -o VpcId=${VPC_ID} \
-    -o SubnetId=${SUBNET_A_ID},${SUBNET_B_ID}
+    -p parameters.${TYPE}.yaml \
+    -o Name=${TYPE} \
+    -o Environment=${ENVIRONMENT} \
+    -o QualifiedName=${STACK_NAME}
+
+TEMPLATE="subnet.yaml"
+TYPE="${TEMPLATE%.*}"
+STACK_NAME="caretocompare-${ENVIRONMENT}-${TYPE}"
+VPC_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-vpc --output text --query 'Stacks[0].Outputs[?OutputKey==`VPCId`].OutputValue')
+
+echo "INFO: [`date +"%T"`] Loading VPC Id: ${VPC_ID}."
+echo ""
+
+echo ""
+echo "INFO: [`date +"%T"`] Deploying to ${STACK_NAME} for environment ${ENVIRONMENT}"
+docker run --rm \
+    -v `pwd`:/cwd \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    -e AWS_SESSION_TOKEN \
+    -e AWS_DEFAULT_REGION \
+    realestate/stackup:1.1.1 "${STACK_NAME}" up -t ${TEMPLATE} \
+    -p parameters.${TYPE}.yaml \
+    -o Name=${TYPE} \
+    -o Environment=${ENVIRONMENT} \
+    -o QualifiedName=${STACK_NAME} \
+    -o VPCId=${VPC_ID}
+
+echo "INFO: [`date +"%T"`] Done."
+

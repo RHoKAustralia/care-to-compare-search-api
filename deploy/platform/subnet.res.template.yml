@@ -1,0 +1,165 @@
+  __SUBNET__RouteTableA:
+    Properties:
+      Tags:
+      - Key: Name
+        Value:
+          !Sub rt-${QualifiedName}-__SUBNET__-A
+      - Key: Environment
+        Value:
+          !Ref Environment
+      - Key: Zone
+        Value: __SUBNET__
+      VpcId:
+        !Ref VPCId
+    Type: AWS::EC2::RouteTable
+  __SUBNET__RouteTableB:
+    Properties:
+      Tags:
+      - Key: Name
+        Value:
+          !Sub rt-${QualifiedName}-__SUBNET__-B
+      - Key: Environment
+        Value:
+          !Ref Environment
+      - Key: Zone
+        Value: __SUBNET__
+      VpcId:
+        !Ref VPCId
+    Type: AWS::EC2::RouteTable
+  __SUBNET__RouteTableC:
+    Condition: ThirdAZExist
+    Properties:
+      Tags:
+      - Key: Name
+        Value:
+          !Sub rt-${QualifiedName}-__SUBNET__-C
+      - Key: Environment
+        Value:
+          !Ref Environment
+      - Key: Zone
+        Value: __SUBNET__
+      VpcId:
+        !Ref VPCId
+    Type: AWS::EC2::RouteTable
+  __SUBNET__SubnetA:
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs:
+            !Ref AWS::Region
+      CidrBlock:
+        !Ref __SUBNET__SubnetACIDR
+      Tags:
+      - Key: Name
+        Value:
+          !Sub ${Environment}-__SUBNET__-A
+      - Key: Environment
+        Value:
+          !Ref Environment
+      - Key: Zone
+        Value: __SUBNET__
+      VpcId:
+        !Ref VPCId
+    Type: AWS::EC2::Subnet
+  __SUBNET__SubnetARouteTableAssociation:
+    Properties:
+      RouteTableId:
+        !Ref __SUBNET__RouteTableA
+      SubnetId:
+        !Ref __SUBNET__SubnetA
+    Type: AWS::EC2::SubnetRouteTableAssociation
+  __SUBNET__SubnetB:
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs:
+            !Ref AWS::Region
+      CidrBlock:
+        !Ref __SUBNET__SubnetBCIDR
+      Tags:
+      - Key: Name
+        Value:
+          !Sub ${Environment}-__SUBNET__-B
+      - Key: Environment
+        Value:
+          !Ref Environment
+      - Key: Zone
+        Value: __SUBNET__
+      VpcId:
+        !Ref VPCId
+    Type: AWS::EC2::Subnet
+  __SUBNET__SubnetBRouteTableAssociation:
+    Properties:
+      RouteTableId:
+        !Ref __SUBNET__RouteTableB
+      SubnetId:
+        !Ref __SUBNET__SubnetB
+    Type: AWS::EC2::SubnetRouteTableAssociation
+  __SUBNET__SubnetC:
+    Condition: ThirdAZExist
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 2
+        - Fn::GetAZs:
+            !Ref AWS::Region
+      CidrBlock:
+        !Ref __SUBNET__SubnetCCIDR
+      Tags:
+      - Key: Name
+        Value:
+          !Sub ${Environment}-__SUBNET__-C
+      - Key: Environment
+        Value:
+          !Ref Environment
+      - Key: Zone
+        Value: __SUBNET__
+      VpcId:
+        !Ref VPCId
+    Type: AWS::EC2::Subnet
+  __SUBNET__SubnetCRouteTableAssociation:
+    Condition: ThirdAZExist
+    Properties:
+      RouteTableId:
+        !Ref __SUBNET__RouteTableC
+      SubnetId:
+        !Ref __SUBNET__SubnetC
+    Type: AWS::EC2::SubnetRouteTableAssociation
+  # __SUBNET__NetworkAcl:
+  #   Properties:
+  #     Tags:
+  #     - Key: Name
+  #       Value:
+  #         !Sub ${AWS::StackName}-__SUBNET__-Nacl
+  #     - Key: Application
+  #       Value:
+  #         !Ref AWS::StackName
+  #     - Key: Network
+  #       Value: __SUBNET__
+  #     VpcId:
+  #       !Ref VPCId
+  #   Type: AWS::EC2::NetworkAcl
+  # __SUBNET__SubnetANetworkAclAssociation:
+  #   Properties:
+  #     NetworkAclId:
+  #       !Ref __SUBNET__NetworkAcl
+  #     SubnetId:
+  #       !Ref __SUBNET__SubnetA
+  #   Type: AWS::EC2::SubnetNetworkAclAssociation
+  # __SUBNET__SubnetBNetworkAclAssociation:
+  #   Properties:
+  #     NetworkAclId:
+  #       !Ref __SUBNET__NetworkAcl
+  #     SubnetId:
+  #       !Ref __SUBNET__SubnetB
+  #   Type: AWS::EC2::SubnetNetworkAclAssociation
+  # __SUBNET__SubnetCNetworkAclAssociation:
+  #   Condition: ThirdAZExist
+  #   Properties:
+  #     NetworkAclId:
+  #       !Ref __SUBNET__NetworkAcl
+  #     SubnetId:
+  #       !Ref __SUBNET__SubnetC
+  #   Type: AWS::EC2::SubnetNetworkAclAssociation

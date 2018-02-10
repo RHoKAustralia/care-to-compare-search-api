@@ -1,0 +1,45 @@
+  __SUBNET__RouteTableIds:
+    Description: Route Table Ids for the VPC
+    Value:
+      Fn::If:
+      - ThirdAZExist
+      - Fn::Join:
+        - ','
+        - - !Ref __SUBNET__RouteTableA
+          - !Ref __SUBNET__RouteTableB
+          - !Ref __SUBNET__RouteTableC
+      - Fn::Join:
+        - ','
+        - - !Ref __SUBNET__RouteTableA
+          - !Ref __SUBNET__RouteTableB
+  __SUBNET__SubnetAId:
+    Description: Subnet Id for __SUBNET__ Tier
+    Value:
+      !Ref __SUBNET__SubnetA
+  __SUBNET__SubnetBId:
+    Description: Subnet Id for __SUBNET__ Tier
+    Value:
+      !Ref __SUBNET__SubnetB
+  __SUBNET__SubnetCId:
+    Condition: ThirdAZExist
+    Description: Subnet Id for __SUBNET__ Tier
+    Value:
+      !Ref __SUBNET__SubnetC
+  __SUBNET__SubnetIds:
+    Description: List of Subnet Ids in __SUBNET__ Tier
+    Value:
+      Fn::If:
+      - ThirdAZExist
+      - Fn::Join:
+        - ','
+        - - !Ref __SUBNET__SubnetA
+          - !Ref __SUBNET__SubnetB
+          - !Ref __SUBNET__SubnetC
+      - Fn::Join:
+        - ','
+        - - !Ref __SUBNET__SubnetA
+          - !Ref __SUBNET__SubnetB
+  # __SUBNET__NetworkAclId:
+  #   Description: Network ACLs for __SUBNET__ Tier
+  #   Value:
+  #     !Ref __SUBNET__NetworkAcl

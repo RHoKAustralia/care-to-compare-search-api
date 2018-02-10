@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Infrastructure Automation for VPC
+Outputs:
+  VPCCIDR:
+    Description: VPC CIDR for environment
+    Value:
+      Ref: CidrBlock
+  VPCId:
+    Description: VPC ID for environment
+    Value:
+      Ref: VPC
+Parameters:
+  CidrBlock:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+    Description: The IP address range for a VPC
+    MaxLength: '18'
+    MinLength: '9'
+    Type: String
+  EnableVPNConnection:
+    Default: 'false'
+    Description: Toggle for VPN Connection
+    Type: String
+  Environment:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  Name:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  QualifiedName:
+    AllowedPattern: '[A-Za-z][A-Za-z0-9\-]*'
+    Type: String
+  SharedServicesPeeredVPC:
+    Default: ''
+    Description: The VPC Id for Shared Services VPC to be paired with
+    Type: String
+Resources:
+  VPC:
+    Properties:
+      CidrBlock:
+        Ref: CidrBlock
+      EnableDnsHostnames: 'true'
+      EnableDnsSupport: 'true'
+      Tags:
+      - Key: Name
+        Value:
+          Ref: QualifiedName
+      - Key: Environment
+        Value:
+          Ref: Environment
+    Type: AWS::EC2::VPC
