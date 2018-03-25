@@ -71,14 +71,6 @@ Resources:
       FromPort: '22'
       ToPort: '22'
       CidrIp: 0.0.0.0/0
-  EcsSecurityGroupALBports:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref 'EcsSecurityGroup'
-      IpProtocol: tcp
-      FromPort: '31000'
-      ToPort: '61000'
-      SourceSecurityGroupId: !Ref 'EcsSecurityGroup'
   CloudwatchLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -91,9 +83,16 @@ Resources:
       ContainerDefinitions:
       - Name: search-api
         Cpu: '10'
+        Environment:
+          - Name: DB_URL
+            Value: "mongodb://policy-store/policy-search-db"
+          - Name: PORT
+            Value: 3000
         Essential: 'true'
         Image: 702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/search-api:latest
         Memory: '300'
+        Links:
+          - 'policy-store'
         LogConfiguration:
           LogDriver: awslogs
           Options:
@@ -105,7 +104,8 @@ Resources:
         # - ContainerPath: /usr/local/apache2/htdocs
         #   SourceVolume: my-vol
         PortMappings:
-        - ContainerPort: 3000
+        - HostPort: 3000
+          ContainerPort: 3000
       - Name: policy-store
         Cpu: '10'
         Essential: 'true'
@@ -121,7 +121,8 @@ Resources:
         # - ContainerPath: /usr/local/apache2/htdocs
         #   SourceVolume: my-vol
         PortMappings:
-        - ContainerPort: 27017
+        - HostPort: 27017
+          ContainerPort: 27017
   ECSALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -158,15 +159,15 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     DependsOn: ECSALB
     Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 20
+      HealthCheckPath: /graphql
       HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
+      HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 2
       Name: ECSTG
       Port: 3000
       Protocol: HTTP
-      UnhealthyThresholdCount: 2
+      UnhealthyThresholdCount: 8
       VpcId: !Ref 'VpcId'
   ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -201,6 +202,7 @@ Resources:
     DependsOn: ALBListener
     Properties:
       Cluster: !Ref 'ECSCluster'
+      HealthCheckGracePeriodSeconds: 500
       DesiredCount: '1'
       LoadBalancers:
       - ContainerName: search-api
@@ -225,7 +227,19 @@ Resources:
           - Effect: Allow
             Action: ['elasticloadbalancing:DeregisterInstancesFromLoadBalancer', 'elasticloadbalancing:DeregisterTargets',
               'elasticloadbalancing:Describe*', 'elasticloadbalancing:RegisterInstancesWithLoadBalancer',
-              'elasticloadbalancing:RegisterTargets', 'ec2:Describe*', 'ec2:AuthorizeSecurityGroupIngress']
+              'elasticloadbalancing:RegisterTargets', 'ec2:Describe*', 'ec2:AuthorizeSecurityGroupIngress',
+              "ecr:GetAuthorizationToken",
+              "ecr:BatchCheckLayerAvailability",
+              "ecr:GetDownloadUrlForLayer",
+              "ecr:GetRepositoryPolicy",
+              "ecr:DescribeRepositories",
+              "ecr:ListImages",
+              "ecr:DescribeImages",
+              "ecr:BatchGetImage",
+              "ecr:InitiateLayerUpload",
+              "ecr:UploadLayerPart",
+              "ecr:CompleteLayerUpload",
+              "ecr:PutImage"]
             Resource: '*'
   ServiceScalingTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget

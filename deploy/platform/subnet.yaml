@@ -378,31 +378,31 @@ Resources:
       VpcId:
         !Ref VPCId
     Type: AWS::EC2::VPCDHCPOptionsAssociation
-  InternetPrivateARoute:
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId:
-        !Ref NATAzA
-      RouteTableId:
-        !Ref PrivateRouteTableA
-    Type: AWS::EC2::Route
-  InternetPrivateBRoute:
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId:
-        !Ref NATAzB
-      RouteTableId:
-        !Ref PrivateRouteTableB
-    Type: AWS::EC2::Route
-  InternetPrivateCRoute:
-    Condition: ThirdAZExist
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId:
-        !Ref NATAzC
-      RouteTableId:
-        !Ref PrivateRouteTableC
-    Type: AWS::EC2::Route
+  # InternetPrivateARoute:
+  #   Properties:
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId:
+  #       !Ref NATAzA
+  #     RouteTableId:
+  #       !Ref PrivateRouteTableA
+  #   Type: AWS::EC2::Route
+  # InternetPrivateBRoute:
+  #   Properties:
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId:
+  #       !Ref NATAzB
+  #     RouteTableId:
+  #       !Ref PrivateRouteTableB
+  #   Type: AWS::EC2::Route
+  # InternetPrivateCRoute:
+  #   Condition: ThirdAZExist
+  #   Properties:
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId:
+  #       !Ref NATAzC
+  #     RouteTableId:
+  #       !Ref PrivateRouteTableC
+  #   Type: AWS::EC2::Route
   InternetGateway:
     Properties:
       Tags:
@@ -489,50 +489,50 @@ Resources:
       VpcId:
         !Ref VPCId
     Type: AWS::EC2::SecurityGroup
-  NATAzA:
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      AllocationId:
-        Fn::GetAtt:
-        - NATEIPA
-        - AllocationId
-      SubnetId:
-        !Ref PublicSubnetA
-    Type: AWS::EC2::NatGateway
-  NATAzB:
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      AllocationId:
-        Fn::GetAtt:
-        - NATEIPB
-        - AllocationId
-      SubnetId:
-        !Ref PublicSubnetB
-    Type: AWS::EC2::NatGateway
-  NATAzC:
-    Condition: ThirdAZExist
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      AllocationId:
-        Fn::GetAtt:
-        - NATEIPC
-        - AllocationId
-      SubnetId:
-        !Ref PublicSubnetC
-    Type: AWS::EC2::NatGateway
-  NATEIPA:
-    Properties:
-      Domain: vpc
-    Type: AWS::EC2::EIP
-  NATEIPB:
-    Properties:
-      Domain: vpc
-    Type: AWS::EC2::EIP
-  NATEIPC:
-    Condition: ThirdAZExist
-    Properties:
-      Domain: vpc
-    Type: AWS::EC2::EIP
+  # NATAzA:
+  #   DependsOn: InternetGatewayAttachment
+  #   Properties:
+  #     AllocationId:
+  #       Fn::GetAtt:
+  #       - NATEIPA
+  #       - AllocationId
+  #     SubnetId:
+  #       !Ref PublicSubnetA
+  #   Type: AWS::EC2::NatGateway
+  # NATAzB:
+  #   DependsOn: InternetGatewayAttachment
+  #   Properties:
+  #     AllocationId:
+  #       Fn::GetAtt:
+  #       - NATEIPB
+  #       - AllocationId
+  #     SubnetId:
+  #       !Ref PublicSubnetB
+  #   Type: AWS::EC2::NatGateway
+  # NATAzC:
+  #   Condition: ThirdAZExist
+  #   DependsOn: InternetGatewayAttachment
+  #   Properties:
+  #     AllocationId:
+  #       Fn::GetAtt:
+  #       - NATEIPC
+  #       - AllocationId
+  #     SubnetId:
+  #       !Ref PublicSubnetC
+  #   Type: AWS::EC2::NatGateway
+  # NATEIPA:
+  #   Properties:
+  #     Domain: vpc
+  #   Type: AWS::EC2::EIP
+  # NATEIPB:
+  #   Properties:
+  #     Domain: vpc
+  #   Type: AWS::EC2::EIP
+  # NATEIPC:
+  #   Condition: ThirdAZExist
+  #   Properties:
+  #     Domain: vpc
+  #   Type: AWS::EC2::EIP
   PublicSubnetGatewayRoute:
     DependsOn: InternetGatewayAttachment
     Properties:
