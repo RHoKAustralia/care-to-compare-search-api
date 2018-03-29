@@ -17,6 +17,10 @@ Parameters:
     Type: Number
     Default: '1'
     Description: Maximum number of instances that can be launched in your ECS cluster.
+  SearchApiVersion:
+    Type: String
+    Default: 'latest'
+    Description: Version of the search-api docker image.  
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -55,6 +59,10 @@ Resources:
     Properties:
       GroupDescription: ECS Security Group
       VpcId: !Ref 'VpcId'
+      # SecurityGroupIngress:
+      #   # Allow access from anywhere to our ECS services
+      #   - CidrIp: 0.0.0.0/0
+      #     IpProtocol: -1
   EcsSecurityGroupHTTPinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -89,7 +97,7 @@ Resources:
           - Name: PORT
             Value: 3000
         Essential: 'true'
-        Image: 702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/search-api:latest
+        Image: !Sub "702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/search-api:${SearchApiVersion}"
         Memory: '300'
         Links:
           - 'policy-store'
@@ -100,9 +108,6 @@ Resources:
             awslogs-region: !Ref 'AWS::Region'
             awslogs-stream-prefix: ecs-search-api
         Command: ['start']
-        # MountPoints:
-        # - ContainerPath: /usr/local/apache2/htdocs
-        #   SourceVolume: my-vol
         PortMappings:
         - HostPort: 3000
           ContainerPort: 3000
@@ -117,12 +122,9 @@ Resources:
             awslogs-group: !Ref 'CloudwatchLogsGroup'
             awslogs-region: !Ref 'AWS::Region'
             awslogs-stream-prefix: ecs-search-api
-        # MountPoints:
-        # - ContainerPath: /usr/local/apache2/htdocs
-        #   SourceVolume: my-vol
-        PortMappings:
-        - HostPort: 27017
-          ContainerPort: 27017
+        # PortMappings:
+        # - HostPort: 27017
+        #   ContainerPort: 27017
   ECSALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -159,15 +161,17 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     DependsOn: ECSALB
     Properties:
-      HealthCheckIntervalSeconds: 20
-      HealthCheckPath: /graphql
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /healthcheck
+      HealthCheckPort: 3000
       HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 10
+      HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: ECSTG
+      Name: SearchAPITargetGroup
       Port: 3000
       Protocol: HTTP
-      UnhealthyThresholdCount: 8
+      TargetType: instance
+      UnhealthyThresholdCount: 5
       VpcId: !Ref 'VpcId'
   ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -203,7 +207,7 @@ Resources:
     Properties:
       Cluster: !Ref 'ECSCluster'
       HealthCheckGracePeriodSeconds: 500
-      DesiredCount: '1'
+      DesiredCount: !Ref 'DesiredCapacity'
       LoadBalancers:
       - ContainerName: search-api
         ContainerPort: '3000'

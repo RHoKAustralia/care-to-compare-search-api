@@ -14,7 +14,7 @@ VERSION=1.0.${BUILD_NUMBER:-0}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 TEMPLATES=(
-  "app.yml"
+  "searchapi.yml"
 )
 
 for TEMPLATE in "${TEMPLATES[@]}"
@@ -27,12 +27,11 @@ done
 
 cd ${DIR}
 
-TEMPLATE="app.yml"
+TEMPLATE="searchapi.yml"
 TYPE="${TEMPLATE%.*}"
 STACK_NAME="caretocompare-${ENVIRONMENT}-${TYPE}"
 VPC_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-vpc --output text --query 'Stacks[0].Outputs[?OutputKey==`VPCId`].OutputValue')
-SUBNET_A_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-subnet --output text --query 'Stacks[0].Outputs[?OutputKey==`PublicSubnetAId`].OutputValue')
-SUBNET_B_ID=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-subnet --output text --query 'Stacks[0].Outputs[?OutputKey==`PublicSubnetBId`].OutputValue')
+SUBNET_IDS=$(aws cloudformation describe-stacks --stack-name caretocompare-${ENVIRONMENT}-subnet --output text --query 'Stacks[0].Outputs[?OutputKey==`PublicSubnetIds`].OutputValue')
 
 echo ""
 echo "INFO: [`date +"%T"`] Deploying to ${STACK_NAME} for environment ${ENVIRONMENT}"
@@ -45,4 +44,5 @@ docker run --rm \
     realestate/stackup:1.1.1 "${STACK_NAME}" up -t ${TEMPLATE} \
     -p parameters.${TYPE}.yml \
     -o VpcId=${VPC_ID} \
-    -o SubnetId=${SUBNET_A_ID},${SUBNET_B_ID}
+    -o SubnetId="${SUBNET_IDS}" \
+    -o SearchApiVersion=${VERSION}
