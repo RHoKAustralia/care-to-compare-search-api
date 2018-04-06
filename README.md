@@ -22,7 +22,7 @@ Start container (from repo directory):
 ```bash
 docker run \
     --publish=27017:27017 \
-    --volume $HOME/mongodb/data:/data/db \
+    --volume $(pwd)/data/db:/data/db \
     --volume=$(pwd)/data/seed-data:/input-data \
     --name policy-search \
     -d \
@@ -35,7 +35,7 @@ docker run \
 
 Import the policy data:
 ```bash
-docker exec -it policy-search bash -c "mongoimport --db policy-search-db --collection policies --type json --file /input-data/policies.json --jsonArray"
+docker exec -it policy-search bash -c "mongoimport --db policy-search-db --collection policies --drop --type json --file /input-data/policies-2018.json --jsonArray"
 ```
 
 Update `policy` database schema:

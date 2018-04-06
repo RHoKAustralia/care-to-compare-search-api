@@ -17,10 +17,10 @@ Parameters:
     Type: Number
     Default: '1'
     Description: Maximum number of instances that can be launched in your ECS cluster.
-  SearchApiVersion:
+  ApiVersion:
     Type: String
     Default: 'latest'
-    Description: Version of the search-api docker image.  
+    Description: Version of the search-api and policy-store docker image.
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -97,7 +97,7 @@ Resources:
           - Name: PORT
             Value: 3000
         Essential: 'true'
-        Image: !Sub "702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/search-api:${SearchApiVersion}"
+        Image: !Sub "702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/search-api:${ApiVersion}"
         Memory: '300'
         Links:
           - 'policy-store'
@@ -114,7 +114,7 @@ Resources:
       - Name: policy-store
         Cpu: '10'
         Essential: 'true'
-        Image: 702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/policy-store:latest
+        Image: !Sub "702557701840.dkr.ecr.ap-southeast-2.amazonaws.com/policy-store:${ApiVersion}"
         Memory: '300'
         LogConfiguration:
           LogDriver: awslogs

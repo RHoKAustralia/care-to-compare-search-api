@@ -45,4 +45,4 @@ docker run --rm \
     -p parameters.${TYPE}.yml \
     -o VpcId=${VPC_ID} \
     -o SubnetId="${SUBNET_IDS}" \
-    -o SearchApiVersion=${VERSION}
+    -o ApiVersion=${VERSION}
