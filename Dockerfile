@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y curl apt-transport-https && \
     apt-get update && apt-get install -y yarn
 
 WORKDIR /app
-ADD . .
+COPY package.json package-lock.json yarn.lock  ./
 RUN yarn install
+
+COPY src/ ./src/
 
 ENTRYPOINT [ "yarn" ]
