@@ -4,3 +4,5 @@ npm-debug.log
 .vscode
 
 .tern-project
+
+data/db

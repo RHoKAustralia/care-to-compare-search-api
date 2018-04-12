@@ -10,6 +10,7 @@ const POLICY_TYPE_COMBINED = 'COMBINED'
 const DEFAULT_PAGE = 1
 const DEFAULT_PAGE_SIZE = 3
 const DEFAULT_SORT = { monthlyPremium: +1 }
+const FUND_CODES = ['AUF', 'BUP', 'HCF', 'LHM', 'PWA', 'MYO']
 
 const toInclusionCovered = (inclusion) => ({ category: inclusion, covered: true})
 const createInclusionCoveredQuery = (inclusions) => ({ $all: inclusions.map(toInclusionCovered) })
@@ -24,6 +25,9 @@ const createDbQuery = (searchCriteria) => {
         category: categoryOfCover,
         states: {
             $in: [state]
+        },
+        fundCode: {
+            $in: FUND_CODES
         }
     }
 
